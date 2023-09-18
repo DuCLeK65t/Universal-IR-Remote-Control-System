@@ -1,23 +1,29 @@
+//   __  __     _                       _________  ___                 __      _____          __           ____ __     __ 
+//  / / / /__  (_)  _____ _______ ___ _/ /  _/ _ \/ _ \___ __ _  ___  / /____ / ___/__  ___  / /________  / / // /_ __/ / 
+// / /_/ / _ \/ / |/ / -_) __(_-</ _ `/ // // , _/ , _/ -_)  ' \/ _ \/ __/ -_) /__/ _ \/ _ \/ __/ __/ _ \/ / _  / // / _ \
+// \____/_//_/_/|___/\__/_/ /___/\_,_/_/___/_/|_/_/|_|\__/_/_/_/\___/\__/\__/\___/\___/_//_/\__/_/  \___/_/_//_/\_,_/_.__/
+//------------------------------------------------------------------------------------------------------------------------
+
 #include "global_variables.h"
 
 #include <Arduino.h>
 #include "Communication.h"
 
-
-/*Wi-Fi configuration*/
+/* Wi-Fi configuration ----------*/
 // SSID and Password
 const char* ssid = "LEDUCANH";
 const char* password = "0368080808";
 
 // MQTT Broker IP address
-const char* mqtt_server = "192.168.1.144";
-/*End of Wi-Fi configuration*/
+const char* mqtt_server = "3.73.193.253";
+uint16_t port = 1883;
+/*---------- End of Wi-Fi configuration ----------*/
 
 void setup() {
   Serial.begin(115200);
 
   setup_wifi();
-  client.setServer(mqtt_server, 1883);
+  client.setServer(mqtt_server, port);
   client.setCallback(callback);
 
   pinMode(ledPin, OUTPUT);

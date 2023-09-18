@@ -1,5 +1,8 @@
 #include "Communication.h"
 
+WiFiClient espClient;
+PubSubClient client(espClient);
+
 void setup_wifi()
 {
     delay(10);

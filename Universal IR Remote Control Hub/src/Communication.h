@@ -7,8 +7,8 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-static WiFiClient espClient;
-static PubSubClient client(espClient);
+extern WiFiClient espClient;
+extern PubSubClient client;
 static long lastMsg = 0;
 static char msg[50];
 static int value = 0;
