@@ -1,5 +1,7 @@
 #include "Communication.h"
 
+
+// MQTT Client Initialization
 WiFiClient espClient;
 PubSubClient client(espClient);
 
