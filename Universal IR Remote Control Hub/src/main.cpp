@@ -15,24 +15,23 @@
 
 #include <Arduino.h>
 #include "Communication.h"
-#include "DataProcessing.h"
+#include "JSONProcessing.h"
+#include "Sensors.h"
 
-/////////////////////////
-// Wi-Fi Configuration //
-/////////////////////////
+/* ---------- Wi-Fi Configuration ---------- */
 
 // SSID and Password
-const char *ssid = "Pixel_9912";
-const char *password = "ngolexuanphuc";
+const char *ssid = "LEDUCANH";
+const char *password = "0368080808";
 
-/* MQTT Broker IP address */
-// HiveMQ Public MQTT Broker
-// Find IP address at https://www.mqtt-dashboard.com/
-const char *mqtt_server = "3.73.193.253";
-// const char *mqtt_server = "your ip";
-uint16_t port = 1883;
+// MQTT Broker IP address
+// HiveMQ Public MQTT Broker: https://www.mqtt-dashboard.com/
+const char *mqtt_server = "3.121.97.109";
 
-/* ---------- End of Wi-Fi configuration ---------- */
+// Default MQTT Port
+const uint16_t port = 1883;
+
+/* ---------- End of Wi-Fi Configuration ---------- */
 
 void setup()
 {
@@ -42,6 +41,7 @@ void setup()
   client.setServer(mqtt_server, port);
   client.setCallback(callback);
 
+  dht.begin();
   pinMode(ledPin, OUTPUT);
 }
 
@@ -54,6 +54,14 @@ void loop()
   // Maintain the connection / Continuously process MQTT messages
   client.loop();
 
+  // Read Humidity and Temperature
+  readDHTsensor();
+  if (isnan(humidity) || isnan(temperature))
+  {
+    Serial.println("Failed to read from DHT sensor!");
+    return;
+  }
+
   /* Data Processing */
   const size_t capacity = JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3);
   DynamicJsonDocument jsonBuffer(capacity);
@@ -62,13 +70,13 @@ void loop()
 
   JsonObject data = jsonBuffer.createNestedObject("data");
   data["location_id"] = 2002;
-  data["remote_id"] = 20021333;
-  data["command"] = "0xB847FF00";
+  data["humidity"] = humidity;
+  data["temperature"] = temperature;
 
   String data_str = "";
   serializeJson(jsonBuffer, data_str);
 
-  const char* charPtr = data_str.c_str();
+  const char *charPtr = data_str.c_str();
 
   /* End of Data Processing */
 

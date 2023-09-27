@@ -1,22 +1,28 @@
 #include <IRremote.h>
- 
+
 int RECV_PIN = 8; // IR LED pin
- 
+int ledPin = 10;
+
 decode_results results;
- 
-void setup()
-{
+
+void setup() {
   Serial.begin(9600);
-  IrReceiver.begin(RECV_PIN, ENABLE_LED_FEEDBACK); // Start the receiver
+  IrReceiver.begin(RECV_PIN, ENABLE_LED_FEEDBACK);  // Start the receiver
+
+  pinMode(ledPin, OUTPUT);
 }
- 
+
 void loop() {
-  if (IrReceiver.decode()) { // Check if is there any IR Signal
-      Serial.println(IrReceiver.decodedIRData.decodedRawData, HEX); // Print "old" raw data
-      // USE NEW 3.x FUNCTIONS
-      IrReceiver.printIRResultShort(&Serial); // Print complete received data in one line
-      IrReceiver.printIRSendUsage(&Serial);   // Print the statement required to send this data
-      
-      IrReceiver.resume(); // Enable receiving of the next value
+  if (IrReceiver.decode()) {  // Check if is there any IR Signal
+    switch (IrReceiver.decodedIRData.decodedRawData) {
+      case 0xB847FF00:  // CH +
+        digitalWrite(ledPin, HIGH);
+        break;
+      case 0xB946FF00:  // CH -
+        digitalWrite(ledPin, LOW);
+        break;
+    }
+
+    IrReceiver.resume();  // Enable receiving of the next value
   }
 }
