@@ -14,8 +14,6 @@ String encodeJSON(uint8_t humidity, uint8_t temperature)
     const size_t capacity = JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3);
     StaticJsonDocument<255> data_encode;
 
-    data_encode["datatype"] = "publish";
-
     JsonObject data = data_encode.createNestedObject("data");
     data["device_id"] = thisDevice_MAC;
     data["humidity"] = humidity;
