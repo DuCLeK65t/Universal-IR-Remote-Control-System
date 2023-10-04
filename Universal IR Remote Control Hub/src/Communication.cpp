@@ -1,14 +1,23 @@
+/* ------------------------------ */
+#include <WiFi.h>
+#include <string.h>
+
 #include "Communication.h"
+#include "JSONProcessing.h"
+#include "IRProcessing.h"
 /* ------------------------------ */
 
 /* MQTT Client Initialization */
 WiFiClient espClient;
 PubSubClient client(espClient);
 
+/* Arrived Message */
+// const char *dataReceive_buffer;
+
 void setup_wifi()
 {
     delay(10);
-    // Connecting to a WiFi network
+    // Connecting to a Wi-Fi network
     Serial.println();
     Serial.print("Connecting to ");
     Serial.println(ssid);
@@ -31,33 +40,40 @@ void callback(char *topic, byte *message, unsigned int length)
 {
     Serial.print("Message arrived on topic: ");
     Serial.print(topic);
-    Serial.print(". Message: ");
-    String messageTemp;
+    Serial.println(". Message: ");
+    String dataReceive_buffer;
 
     for (int i = 0; i < length; i++)
     {
         Serial.print((char)message[i]);
-        messageTemp += (char)message[i];
+        dataReceive_buffer += (char)message[i];
     }
     Serial.println();
 
-    // Feel free to add more if statements to control more GPIOs with MQTT
-
-    // If a message is received on the topic esp32/output, you check if the message is either "on" or "off".
-    // Changes the output state according to the message
+    // Control device according to the message
     if (String(topic) == "esp32/output")
     {
-        Serial.print("Changing output to ");
-        if (messageTemp == "on")
+        if (!decodeJSON(dataReceive_buffer.c_str()))
         {
-            Serial.println("on");
-            digitalWrite(ledPin, HIGH);
+            return;
         }
-        else if (messageTemp == "off")
+        else
         {
-            Serial.println("off");
-            digitalWrite(ledPin, LOW);
+            // Check MAC Address
+            if (thisDevice_MAC.compareTo((String)data_deviceMAC))
+            {
+                uint64_t necData = strtoull(data_IRcommand, nullptr, 16);
+                irsend.sendNEC(necData);
+            }
+            else
+            {
+                Serial.println("MAC address is not correct!");
+            }
         }
+    }
+    else
+    {
+        Serial.println("Topic is not correct!");
     }
 }
 
@@ -68,17 +84,17 @@ void reconnect()
     {
         Serial.print("Attempting MQTT connection...");
         // Attempt to connect
-        if (client.connect("ESP8266Client"))
+        if (client.connect("ESP32Client"))
         {
-            Serial.println("connected");
+            Serial.println("Connected to MQTT broker");
             // Subscribe
             client.subscribe("esp32/output");
         }
         else
         {
-            Serial.print("failed, rc=");
+            Serial.print("Failed, rc=");
             Serial.print(client.state());
-            Serial.println(" try again in 5 seconds");
+            Serial.println(" Try again in 5 seconds");
             // Wait 5 seconds before retrying
             delay(5000);
         }

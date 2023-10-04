@@ -1,12 +1,14 @@
+/* ------------------------------ */
 #include "Sensors.h"
 /* ------------------------------ */
 
 /* DHT Sensor */
+// DHT Sensor Initalization
 DHT dht(dht_pin, dht_type);
 
-//Sensor values
-uint8_t temperature = 0;
+// Sensor values
 uint8_t humidity = 0;
+uint8_t temperature = 0;
 
 void readDHTsensor()
 {
@@ -16,6 +18,9 @@ void readDHTsensor()
     // Read temperature as Celsius (the default)
     temperature = dht.readTemperature();
 
-    // Read temperature as Fahrenheit (isFahrenheit = true)
-    // float temperature = dht.readTemperature(true);
+    if (isnan(humidity) || isnan(temperature))
+    {
+        Serial.println("Failed to read from DHT sensor!");
+        return;
+    }
 }
