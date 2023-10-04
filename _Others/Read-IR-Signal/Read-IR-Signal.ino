@@ -1,6 +1,6 @@
 #include <IRremote.h>
 
-int RECV_PIN = 8; // IR LED pin
+int RECV_PIN = 3; // IR LED pin
 
 decode_results results;
 
